@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Virtual 3D Space</title>
+  <!-- Correct A-Frame CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.5.0/aframe.min.js"></script>
+</head>
+<body>
+
+  <a-scene background="color: #ECECEC">
+
+    <!-- Asset Management System -->
+    <a-assets>
+      <!-- Your GLB models -->
+      <a-asset-item id="table-model" src="Assets/Table model.glb"></a-asset-item>
+      <a-asset-item id="glass-case" src="Assets/glass case.glb"></a-asset-item>
+
+      <!-- Replace these src values with real image URLs -->
+      <img id="wall-texture" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Above_Gotham.jpg/320px-Above_Gotham.jpg">
+      <img id="artwork1"     src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/300px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg">
+      <img id="artwork2"     src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/320px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg">
+    </a-assets>
+
+    <!-- Camera with WASD movement + mouse look -->
+    <a-entity position="0 1.6 5">
+      <a-camera wasd-controls look-controls>
+        <a-cursor color="#FF0000"
+          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150">
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- Floor and Ceiling -->
+    <a-plane position="0 0 0"   rotation="-90 0 0" width="20" height="20" color="#7BC8A4"></a-plane>
+    <a-plane position="0 8 0"   rotation="90 0 0"  width="20" height="20" color="#333333"></a-plane>
+
+    <!-- Walls -->
+    <a-box position="0 4 -10"   width="20" height="8" depth="0.2" src="#wall-texture"></a-box>
+    <a-box position="-10 4 0"   rotation="0 90 0"  width="20" height="8" depth="0.2" color="#FFFFFF"></a-box>
+    <a-box position="10 4 0"    rotation="0 -90 0" width="20" height="8" depth="0.2" color="#FFFFFF"></a-box>
+
+    <!-- Paintings on back wall -->
+    <a-plane position="-4 3 -9.8" width="3" height="4" src="#artwork1"></a-plane>
+    <a-plane position="4 3 -9.8"  width="3" height="4" src="#artwork2"
+      animation__scale="property: scale; to: 1.2 1.2 1.2; startEvents: click; dur: 500">
+    </a-plane>
+
+    <!-- Table GLB model -->
+    <!-- Adjust position/scale to fit your actual model size -->
+    <a-entity
+      gltf-model="#table-model"
+      position="0 0 -3"
+      scale="1 1 1"
+      rotation="0 0 0">
+    </a-entity>
+
+    <!-- Glass Case GLB model — placed on top of the table -->
+    <!-- Raise the Y value to sit on the table surface; adjust scale as needed -->
+    <a-entity
+      gltf-model="#glass-case"
+      position="0 0.85 -3"
+      scale="1 1 1"
+      rotation="0 0 0">
+    </a-entity>
+
+    <!-- Atom / Science Model -->
+    <!-- Nucleus -->
+    <a-sphere position="-6 2 -3" radius="0.4" color="#FFC65D"></a-sphere>
+
+    <!-- Orbiting Electron 1 — wrapped in a rotating entity -->
+    <a-entity position="-6 2 -3"
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 2000; easing: linear">
+      <a-sphere position="1.5 0 0" radius="0.1" color="#EF2D5E"></a-sphere>
+    </a-entity>
+
+    <!-- Orbiting Electron 2 — tilted orbit plane -->
+    <a-entity position="-6 2 -3" rotation="60 0 0"
+      animation="property: rotation; to: 60 360 0; loop: true; dur: 3000; easing: linear">
+      <a-sphere position="-1.8 0 0" radius="0.1" color="#4CC3D9"></a-sphere>
+    </a-entity>
+
+    <!-- Lighting -->
+    <a-light type="ambient"     color="#BBB"></a-light>
+    <a-light type="directional" color="#FFF" intensity="0.6" position="-0.5 1 1"></a-light>
+
+  </a-scene>
+
+</body>
+</html>
