@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Library Showcase of the Amazing Stories</title>
+  <script src="https://unpkg.com/aframe@1.5.0/dist/aframe-master.min.js"></script>
+
+
+  <style>
+    #zoom-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    #zoom-overlay img {
+      max-width: 88%;
+      max-height: 88%;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+    #zoom-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 40px;
+      line-height: 1;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+    #zoom-close:hover {
+      color: #fff066;
+    }
+  </style>
+
+  <script>
+    //Room box borders
+    AFRAME.registerComponent('room-bounds', {
+      tick: function () {
+        const el  = this.el;
+        const pos = el.object3D.getWorldPosition(new THREE.Vector3());
+
+        const margin = 0.5;
+        const minX = -20 + margin, maxX = 30 - margin;
+        const minZ = -10 + margin, maxZ = 10 - margin;
+
+        let newX = Math.min(Math.max(pos.x, minX), maxX);
+        let newZ = Math.min(Math.max(pos.z, minZ), maxZ);
+
+        //Door entry borders: Block crossing the x=0 divider wall unless within the doorway (z: -2..2)
+        const wallMargin = 0.4;
+        if (Math.abs(newZ) > 2 && newX > -wallMargin && newX < wallMargin) {
+          newX = (pos.x < 0) ? -wallMargin : wallMargin;
+        }
+
+        if (newX !== pos.x || newZ !== pos.z) {
+          const parent    = el.parentEl;
+          const parentPos = parent.getAttribute('position');
+          parent.setAttribute('position', {
+            x: parentPos.x + (newX - pos.x),
+            y: parentPos.y,
+            z: parentPos.z + (newZ - pos.z)
+          });
+        }
+      }
+    });
+  </script>
+</head>
+<body>
+
+<a-scene background="color: #1a1a1a">
+
+  <a-assets timeout="15000">
+    <!-- Shared surface textures -->
+    <img id="floor-texture"   src="Assets/Final/floor.jpg">
+    <img id="ceiling-texture" src="Assets/Final/ceiling.jpg">
+
+    <!-- Intro Room -->
+    <img id="intro-poster" src="Assets/Final/intro_showcase.jpg">
+
+    <!-- Gallery Room: podium glb models -->
+    <a-asset-item id="vol1-1"  src="Assets/Final/vol1_1.glb"></a-asset-item>
+    <a-asset-item id="vol3-5"  src="Assets/Final/vol3_5.glb"></a-asset-item>
+    <a-asset-item id="vol4-1"  src="Assets/Final/vol4_1.glb"></a-asset-item>
+    <a-asset-item id="vol13-3" src="Assets/Final/vol13_3.glb"></a-asset-item>
+    <a-asset-item id="vol19-1" src="Assets/Final/vol19_1.glb"></a-asset-item>
+    <a-asset-item id="vol34-10" src="Assets/Final/vol_34.glb"></a-asset-item>
+    <a-asset-item id="vol38-9" src="Assets/Final/vol38_9.glb"></a-asset-item>
+    <a-asset-item id="vol57-5" src="Assets/Final/vol57_5.glb"></a-asset-item>
+    <a-asset-item id="vol66-1" src="Assets/Final/vol66_1.glb"></a-asset-item>
+
+    <!-- Gallery Room: description plaques, one per podium -->
+    <img id="text-vol1-1"  src="Assets/Final/text_vol1_1.jpg">
+    <img id="text-vol3-5"  src="Assets/Final/text_vol3_5.jpg">
+    <img id="text-vol4-1"  src="Assets/Final/text_vol4_1.jpg">
+    <img id="text-vol13-3" src="Assets/Final/text_vol13_3.jpg">
+    <img id="text-vol19-1" src="Assets/Final/text_vol19_1.jpg">
+    <img id="text-vol34-10" src="Assets/Final/text_vol34_10.jpg">
+    <img id="text-vol38-9" src="Assets/Final/text_vol38_9.jpg">
+    <img id="text-vol57-5" src="Assets/Final/text_vol57_5.jpg">
+    <img id="text-vol66-1" src="Assets/Final/text_vol66_1.jpg">
+  </a-assets>
+
+  <!-- CAMERA: starts in the Intro Room facing the intro text panel -->
+  <a-entity position="-10 2.6 8">
+    <a-camera wasd-controls="acceleration: 50; maxSpeed: 8"
+              look-controls
+              near="0.1"
+              room-bounds>
+      <a-cursor color="#FF0000"
+        animation__click="property: scale; startEvents: click;
+                          from: 0.1 0.1 0.1; to: 1 1 1; dur: 150">
+      </a-cursor>
+    </a-camera>
+  </a-entity>
+
+  <!-- ═══════════════════════ FLOOR (spans both rooms) ═══════════════════════ -->
+  <a-plane position="5 0 0" rotation="-90 0 0" width="50" height="20"
+    material="src: #floor-texture; repeat: 1 1; npot: true;">
+  </a-plane>
+
+  <!-- ═══════════════════════ CEILING (spans both rooms) ═══════════════════════ -->
+  <a-plane position="5 10 0" rotation="90 0 0" width="50" height="20"
+    material="src: #ceiling-texture; repeat: 1 1; npot: true;">
+  </a-plane>
+
+  <!-- ═══════════════════════ BACK WALL (z = -10), spans both rooms ═══════════════════════ -->
+  <a-box position="5 5 -10" width="50" height="10" depth="0.2"
+    material="src: #ceiling-texture; repeat: 2.5 1; npot: true;"></a-box>
+
+  <!-- ═══════════════════════ FRONT both rooms ═══════════════════════ -->
+  <a-box position="5 5 10" width="50" height="10" depth="0.2"
+    material="src: #ceiling-texture; repeat: 2.5 1; npot: true;"></a-box>
+
+  <!-- ═══════════════════════ LEFT OUTER WALL (x = -20) — wall stops open at z: -2..2 ═══════════════════════ -->
+  <a-box position="-20 5 -6" rotation="0 90 0" width="33" height="10" depth="0.2"
+    material="src: #ceiling-texture; repeat: 1 1; npot: true;"></a-box>
+
+  <!-- ═══════════════════════ RIGHT OUTER WALL (x = 30) — wall stops open at z: -2..2 ═══════════════════════ -->
+  <a-box position="30 5 -6" rotation="0 -90 0" width="33" height="10" depth="0.2"
+    material="src: #ceiling-texture; repeat: 1 1; npot: true;"></a-box>
+
+  <!-- ═══════════════════════ WALL 2 — divider between rooms (x = 0) ═══════════════════════-->
+  <a-box position="0 5 -6" width="0.2" height="10" depth="8.4"
+    material="src: #ceiling-texture; repeat: 1 1; npot: true;"></a-box>
+  <a-box position="0 5 6" width="0.2" height="10" depth="8.4"
+    material="src: #ceiling-texture; repeat: 1 1; npot: true;"></a-box>
+  <a-box position="0 9 0" width="0.2" height="2" depth="3.598"
+    material="src: #ceiling-texture; repeat: 1 1; npot: true;"></a-box>
+
+  <!-- ═══════════════════════ INTRO ROOM: intro text panel on back wall ═══════════════════════ -->
+  <a-plane position="-10 4.75 -9.85" width="6.4" height="7.9"
+    material="src: #intro-poster; npot: true; transparent: false;">
+  </a-plane>
+
+  <!-- ═══════════════════════ GALLERY ROOM: 9 vol podiums along back wall ═══════════════════════-->
+  <!-- vol1_1 -->
+  <a-entity gltf-model="#vol1-1" position="1.5 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol1_1.jpg"
+    position="1.5 5 -9.85" width="3.58" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol1-1; npot: true;"></a-plane>
+
+  <!-- vol3_5 -->
+  <a-entity gltf-model="#vol3-5" position="4.875 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol3_5.jpg"
+    position="4.875 5 -9.85" width="3.70" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol3-5; npot: true;"></a-plane>
+
+  <!-- vol4_1 -->
+  <a-entity gltf-model="#vol4-1" position="8.25 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol4_1.jpg"
+    position="8.25 5 -9.85" width="3.69" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol4-1; npot: true;"></a-plane>
+
+  <!-- vol13_3 -->
+  <a-entity gltf-model="#vol13-3" position="11.625 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol13_3.jpg"
+    position="11.625 5 -9.85" width="3.41" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol13-3; npot: true;"></a-plane>
+
+  <!-- vol19_1 -->
+  <a-entity gltf-model="#vol19-1" position="15 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol19_1.jpg"
+    position="15 5 -9.85" width="2.20" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol19-1; npot: true;"></a-plane>
+
+  <!-- vol34_10 -->
+  <a-entity gltf-model="#vol34-10" position="18.375 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol34_10.jpg"
+    position="18.375 5 -9.85" width="2.20" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol34-10; npot: true;"></a-plane>
+
+  <!-- vol38_9 -->
+  <a-entity gltf-model="#vol38-9" position="21.75 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol38_9.jpg"
+    position="21.75 5 -9.85" width="3.46" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol38-9; npot: true;"></a-plane>
+
+  <!-- vol57_5 -->
+  <a-entity gltf-model="#vol57-5" position="25.125 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol57_5.jpg"
+    position="25.125 5 -9.85" width="2.66" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol57-5; npot: true;"></a-plane>
+
+  <!-- vol66_1 -->
+  <a-entity gltf-model="#vol66-1" position="28.5 0 -9.2"></a-entity>
+  <a-plane class="vol-plaque" data-img="Assets/Final/text_vol66_1.jpg"
+    position="28.5 5 -9.85" width="3.01" height="1.2" scale="0.333 0.333 0.333"
+    material="src: #text-vol66-1; npot: true;"></a-plane>
+
+  <!-- LIGHTING -->
+  <a-light type="ambient"     color="#BBBBBB"></a-light>
+  <a-light type="directional" color="#FFFFFF" intensity="0.6" position="-0.5 1 1"></a-light>
+  <a-light type="point" color="#ffe8b0" intensity="0.8" distance="8" position="-10 4 0"></a-light>
+  <a-light type="point" color="#ffe8b0" intensity="0.8" distance="10" position="15 4 0"></a-light>
+
+</a-scene>
+
+<!-- ═══════════════════════ ZOOM LIGHTBOX ═══════════════════════ -->
+<div id="zoom-overlay">
+  <button id="zoom-close" aria-label="Close">&times;</button>
+  <img id="zoom-img" src="" alt="Volume description, zoomed in">
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const overlay  = document.getElementById('zoom-overlay');
+    const zoomImg  = document.getElementById('zoom-img');
+    const closeBtn = document.getElementById('zoom-close');
+    const cameraEl = document.querySelector('a-camera');
+
+    function openZoom(src) {
+      zoomImg.setAttribute('src', src);
+      overlay.style.display = 'flex';
+      //Pause camera look/move controls so the view doesn't drift behind the popup
+      if (cameraEl) {
+        cameraEl.setAttribute('look-controls', 'enabled', false);
+        cameraEl.setAttribute('wasd-controls', 'enabled', false);
+      }
+    }
+
+    function closeZoom() {
+      overlay.style.display = 'none';
+      if (cameraEl) {
+        cameraEl.setAttribute('look-controls', 'enabled', true);
+        cameraEl.setAttribute('wasd-controls', 'enabled', true);
+      }
+    }
+
+    closeBtn.addEventListener('click', closeZoom);
+    overlay.addEventListener('click', function (evt) {
+      if (evt.target === overlay) closeZoom();
+    });
+
+    //clicking it opens the zoom
+    document.querySelectorAll('.vol-plaque').forEach(function (plaque) {
+      plaque.addEventListener('click', function () {
+        openZoom(plaque.dataset.img);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
